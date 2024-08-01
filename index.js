@@ -26,7 +26,7 @@ connectDB()
 //     return res.json({items:response})
 // }) 
 
-app.listen(3000, () =>{
+app.listen(process.env.PORT, () =>{
     console.log("app is running")
 })
  
