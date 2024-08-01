@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-
+const dotenv = require('dotenv').config()
 const connectDB = async() => {
     try{
         const conn = await mongoose.connect(
-            'mongodb+srv://admin:sbDtQ1KhhYWJaRSU@objects.48aqm5e.mongodb.net/Accounts?retryWrites=true&w=majority&appName=Objects',
+            process.env.MONGOAPIKEY,
         );
         console.log(`MongoDB Connected: ${conn.connection.host}`);
     } catch (error){
