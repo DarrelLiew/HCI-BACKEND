@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv').config()
 const connectDB = async() => {
     try{
+        console.log(process.env.MONGOAPIKEY)
         const conn = await mongoose.connect(
             process.env.MONGOAPIKEY,
         );

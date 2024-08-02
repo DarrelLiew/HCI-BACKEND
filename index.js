@@ -9,6 +9,7 @@ app.use(express.json())
 var mongoose = require('mongoose');
 app.use(cors())
 
+
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
@@ -26,7 +27,7 @@ connectDB()
 //     return res.json({items:response})
 // }) 
 
-app.listen(process.env.PORT, () =>{
+app.listen(process.env.PORT ||3000, () =>{
     console.log("app is running")
 })
  
