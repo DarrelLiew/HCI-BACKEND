@@ -71,11 +71,9 @@ router.get('/whiteboards/count/:user_id', async (req, res) => {
 
 router.put('/saveWhiteboard', async (req, res) => {
     const { document, session, userId, boardId } = req.body;
-    console.log(document)
+
     try {
-
-
-        if (!document || !session || !userId || !boardId) {
+        if (!userId || !boardId) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -89,9 +87,10 @@ router.put('/saveWhiteboard', async (req, res) => {
             return res.status(404).json({ message: 'Whiteboard not found' });
         }
 
-        whiteboard.document = JSON.stringify(document);
-        whiteboard.session = JSON.stringify(session);
-        whiteboard.snapshot = JSON.stringify({ document, session });
+        // Ensure document and session are not undefined or null
+        whiteboard.document = document ? JSON.stringify(document) : '{}';
+        whiteboard.session = session ? JSON.stringify(session) : '{}';
+        whiteboard.snapshot = JSON.stringify({ document: document || {}, session: session || {} });
 
         await user.save();
         res.status(200).json({ message: 'Save successful!' });
@@ -102,6 +101,7 @@ router.put('/saveWhiteboard', async (req, res) => {
 });
 
 
+
 // router.get('/boardname/:userId/:boardId', async (req,res)=>{
 //     const userId = req.params.userId
 //     const boardId = req.params.boardId
@@ -110,18 +110,33 @@ router.put('/saveWhiteboard', async (req, res) => {
 //     res.status(200).json({message:"get successful"},board)
 // })
 
-router.get('/loadWhiteboard/:userId/:boardId', async (req,res)=>{
-    const userId = req.params.userId
-    const boardId = req.params.boardId
-    const user = await User.findById(userId);
-    const whiteboard = user.whiteboards.id(boardId)
-    const document = whiteboard.document
+router.get('/loadWhiteboard/:userId/:boardId', async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const boardId = req.params.boardId;
+        const user = await User.findById(userId);
 
-    const session = whiteboard.session
+        if (!user) {
+            console.log('User not found');
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-    res.status(200).json({ message: 'Save successful!',  document:document, session:session})
-})
+        const whiteboard = user.whiteboards.id(boardId);
+        if (!whiteboard) {
+            console.log('Whiteboard not found');
+            return res.status(404).json({ message: 'Whiteboard not found' });
+        }
 
+        const document = whiteboard.document || '{}';  // Ensure document is not undefined
+        const session = whiteboard.session || '{}';   // Ensure session is not undefined
+        console.log('Load successful', { document, session });
+
+        res.status(200).json({ message: 'Load successful!', document, session });
+    } catch (error) {
+        console.error('Error loading whiteboard:', error.message);
+        res.status(500).json({ message: error.message });
+    }
+});
 
 
 router.get('/lastthreewhiteboards/:userId', async (req,res)=>{
@@ -156,7 +171,7 @@ router.delete('/deleteWhiteboard/:userId/:boardId', async (req,res)=> {
         const user = await User.findById(userId)
         user.whiteboards.pull(boardId)
         user.save()
-        return res.status(200).json({message:"board deleted"})
+        return res.status(200).json({message:"board deleted successful"})
     } catch(error) {
         return res.status(500).json({ message: error.message });
     }});
