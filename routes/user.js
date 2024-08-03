@@ -31,6 +31,29 @@ router.post('/login', async (req, res) => {
     }
 });
 
+router.post('/create-user', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        console.log('Received request body for user creation:', req.body);
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required' });
+        }
+
+        // Check if the username already exists
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Username already exists.\nPlease choose a different username.' });
+        }
+
+        console.log(`Creating user with username: ${username} and password: ${password}`);
+        const user = await User.create({ username, password });
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error creating user:', error.message);
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 router.get('/:id', async (req, res) => {
     try {
